@@ -39,6 +39,7 @@ def is_call_integration_enabled():
 		"integrations": {
 			"twilio": bool(frappe.db.get_single_value("CRM Twilio Settings", "enabled")),
 			"exotel": bool(frappe.db.get_single_value("CRM Exotel Settings", "enabled")),
+			"asterisk": bool(frappe.db.get_single_value("CRM Asterisk Settings", "enabled")),
 		},
 		"default_calling_medium": get_user_default_calling_medium(),
 	}

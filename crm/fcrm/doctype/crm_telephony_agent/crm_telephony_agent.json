@@ -16,6 +16,7 @@
   "call_receiving_device",
   "column_break_aydj",
   "exotel_number",
+  "asterisk_extension",
   "section_break_phlq",
   "phone_nos"
  ],
@@ -58,6 +59,12 @@
    "options": "Phone"
   },
   {
+   "description": "Your own Asterisk SIP extension, e.g. 1001. Click-to-call rings this extension first, then bridges to the dialed number.",
+   "fieldname": "asterisk_extension",
+   "fieldtype": "Data",
+   "label": "Asterisk Extension"
+  },
+  {
    "fieldname": "section_break_phlq",
    "fieldtype": "Section Break"
   },
@@ -85,7 +92,7 @@
    "fieldname": "default_medium",
    "fieldtype": "Select",
    "label": "Default Medium",
-   "options": "\nTwilio\nExotel"
+   "options": "\nTwilio\nExotel\nAsterisk"
   },
   {
    "default": "Computer",

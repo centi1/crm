@@ -1,0 +1,110 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-10-28 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "enabled",
+  "column_break_uxtz",
+  "record_call",
+  "section_break_kfez",
+  "bridge_url",
+  "column_break_qwfn",
+  "webhook_verify_token",
+  "section_break_iuct",
+  "bridge_api_key"
+ ],
+ "fields": [
+  {
+   "default": "0",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled"
+  },
+  {
+   "fieldname": "section_break_kfez",
+   "fieldtype": "Section Break",
+   "hide_border": 1
+  },
+  {
+   "depends_on": "enabled",
+   "description": "Base URL of the Asterisk ARI bridge service, e.g. http://192.168.1.50:8765",
+   "fieldname": "bridge_url",
+   "fieldtype": "Data",
+   "label": "Bridge URL",
+   "mandatory_depends_on": "enabled"
+  },
+  {
+   "fieldname": "column_break_uxtz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "depends_on": "enabled",
+   "fieldname": "record_call",
+   "fieldtype": "Check",
+   "label": "Record Outgoing Calls"
+  },
+  {
+   "depends_on": "enabled",
+   "fieldname": "section_break_iuct",
+   "fieldtype": "Section Break",
+   "hide_border": 1
+  },
+  {
+   "depends_on": "enabled",
+   "description": "Sent as the X-Api-Key header on every request Frappe makes to the bridge.",
+   "fieldname": "bridge_api_key",
+   "fieldtype": "Password",
+   "label": "Bridge API Key",
+   "mandatory_depends_on": "enabled"
+  },
+  {
+   "fieldname": "column_break_qwfn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "enabled",
+   "description": "Shared secret the bridge must send as ?key= when calling back into this webhook.",
+   "fieldname": "webhook_verify_token",
+   "fieldtype": "Data",
+   "label": "Webhook Verify Token",
+   "mandatory_depends_on": "enabled"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-10-28 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "FCRM",
+ "name": "CRM Asterisk Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Sales Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
