@@ -753,12 +753,14 @@ watch(
 
 onBeforeUnmount(() => {
   $socket.off('docinfo_update', handleDocinfoUpdate)
+  $socket.off('crm_call_log_update', handleCallLogUpdate)
   $socket.emit('doc_unsubscribe', props.doctype, props.docname)
 })
 
 onMounted(() => {
   $socket.emit('doc_subscribe', props.doctype, props.docname)
   $socket.on('docinfo_update', handleDocinfoUpdate)
+  $socket.on('crm_call_log_update', handleCallLogUpdate)
 
   nextTick(() => scrollToHash(route.hash))
 })
@@ -794,6 +796,12 @@ function handleDocinfoUpdate({ doc, key }) {
 
   all_activities.reload()
   _document.reload()
+}
+
+// a call linked to this record was logged or changed status (ringing, completed, ...)
+function handleCallLogUpdate({ doctype, docname }) {
+  if (doctype !== props.doctype || docname !== props.docname) return
+  all_activities.reload()
 }
 
 function onTemplateSent() {

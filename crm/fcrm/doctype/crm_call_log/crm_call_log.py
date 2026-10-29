@@ -53,6 +53,18 @@ class CRMCallLog(Document):
 		if not self.telephony_medium:
 			self.telephony_medium = "Manual"
 
+	def on_update(self):
+		# live-refresh open lead/deal pages as the call status changes
+		for link in self.links:
+			if link.link_doctype in ("CRM Lead", "CRM Deal"):
+				frappe.publish_realtime(
+					"crm_call_log_update",
+					{"doctype": link.link_doctype, "docname": link.link_name},
+					doctype=link.link_doctype,
+					docname=link.link_name,
+					after_commit=True,
+				)
+
 	@staticmethod
 	def default_list_data():
 		columns = [
