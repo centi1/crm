@@ -411,25 +411,27 @@ function makeOutgoingCall(number) {
 
 function setup() {
   $socket.on('asterisk_call', (data) => {
-    if (callData.value && data.call_id !== callData.value.CallSid) {
-      // A status update for a different call than the one this tab is showing.
-      return
-    }
-    callData.value = { ...callData.value, ...data }
-
-    callStatus.value = updateStatus(data)
     const { user } = sessionStore()
 
-    if (!showCallPopup.value && !showSmallCallPopup.value) {
-      if (data.direction === 'incoming' && data.agent === (user || user.value)) {
-        // Incoming call
-        phoneNumber.value = data.from_number
-        showCallPopup.value = true
-      } else {
-        // Outgoing call
-        phoneNumber.value = data.to_number
+    if (showCallPopup.value || showSmallCallPopup.value) {
+      // outgoing calls carry CallSid, incoming ones only call_id
+      const currentCallId = callData.value?.CallSid || callData.value?.call_id
+      if (data.call_id !== currentCallId) {
+        // A status update for a different call than the one this tab is showing.
+        return
       }
+      callData.value = { ...callData.value, ...data }
+    } else if (data.direction === 'incoming' && data.agent === (user || user.value)) {
+      // An incoming call this agent just picked up
+      callData.value = data
+      phoneNumber.value = data.from_number
+      showCallPopup.value = true
+    } else {
+      // Someone else's call, or an update for a popup already closed
+      return
     }
+
+    callStatus.value = updateStatus(data)
   })
 }
 
