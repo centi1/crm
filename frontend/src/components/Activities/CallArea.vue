@@ -105,19 +105,26 @@ import TimelineTimestamp from '@/components/Activities/TimelineTimestamp.vue'
 import { getCallStatusLabel, statusColorMap } from '@/utils/callLog.js'
 import { formatDate } from '@/utils'
 import { Avatar, Badge, createResource } from 'frappe-ui'
-import { reactive, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 const props = defineProps({
   activity: { type: Object, default: () => ({}) },
 })
 
-const call = reactive(props.activity)
+// follow the prop: a reload of the activity list passes in a fresh object
+const call = computed(() => props.activity)
 
 const callLog = createResource({
   url: 'crm.fcrm.doctype.crm_call_log.crm_call_log.get_call_log',
-  params: { name: call.name },
-  cache: ['call_log', call.name],
+  params: { name: props.activity.name },
+  cache: ['call_log', props.activity.name],
   auto: true,
 })
+
+// keep the detail modal current while a live call changes status
+watch(
+  () => call.value.status,
+  () => callLog.reload(),
+)
 const showCallLogDetailModal = ref(false)
 </script>
