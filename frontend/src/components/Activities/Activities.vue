@@ -23,7 +23,7 @@
     </div>
     <QuotationsList v-else-if="title == 'Quotations'" :deal="docname" />
     <div
-      v-else-if="all_activities?.loading"
+      v-else-if="all_activities?.loading && !all_activities?.data"
       class="flex flex-1 flex-col items-center justify-center gap-3 text-2xl-medium text-ink-gray-4"
     >
       <LoadingIndicator class="h-6 w-6" />
