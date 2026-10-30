@@ -13,7 +13,15 @@
   "column_break_qwfn",
   "webhook_verify_token",
   "section_break_iuct",
-  "bridge_api_key"
+  "bridge_api_key",
+  "incoming_section",
+  "agent_ring_seconds",
+  "max_agent_attempts",
+  "column_break_incoming",
+  "escalation_endpoint",
+  "escalation_ring_seconds",
+  "inbound_numbers_section",
+  "inbound_numbers"
  ],
  "fields": [
   {
@@ -71,12 +79,70 @@
    "fieldtype": "Data",
    "label": "Webhook Verify Token",
    "mandatory_depends_on": "enabled"
+  },
+  {
+   "collapsible": 0,
+   "depends_on": "enabled",
+   "fieldname": "incoming_section",
+   "fieldtype": "Section Break",
+   "label": "Incoming Calls"
+  },
+  {
+   "default": "4",
+   "depends_on": "enabled",
+   "description": "How long each available agent rings before the call moves to the next one (round robin).",
+   "fieldname": "agent_ring_seconds",
+   "fieldtype": "Int",
+   "label": "Ring Each Agent (seconds)",
+   "non_negative": 1
+  },
+  {
+   "default": "5",
+   "depends_on": "enabled",
+   "description": "Agents rung before escalating. With fewer agents available, the round robin cycles through them again.",
+   "fieldname": "max_agent_attempts",
+   "fieldtype": "Int",
+   "label": "Agent Attempts",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "column_break_incoming",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "enabled",
+   "description": "Rung when no agent answers, or none is available. An Asterisk endpoint, e.g. PJSIP/1004, or PJSIP/9876543210@trunk once the SIP trunk is connected.",
+   "fieldname": "escalation_endpoint",
+   "fieldtype": "Data",
+   "label": "Escalate To"
+  },
+  {
+   "default": "30",
+   "depends_on": "enabled",
+   "fieldname": "escalation_ring_seconds",
+   "fieldtype": "Int",
+   "label": "Ring Escalation (seconds)",
+   "non_negative": 1
+  },
+  {
+   "depends_on": "enabled",
+   "fieldname": "inbound_numbers_section",
+   "fieldtype": "Section Break",
+   "hide_border": 1
+  },
+  {
+   "depends_on": "enabled",
+   "description": "Which outlet each incoming number belongs to, shown to the agent and on the call log.",
+   "fieldname": "inbound_numbers",
+   "fieldtype": "Table",
+   "label": "Incoming Numbers",
+   "options": "CRM Asterisk Inbound Number"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-10-28 00:00:00.000000",
+ "modified": "2026-10-30 16:00:00.000000",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Asterisk Settings",

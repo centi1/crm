@@ -17,6 +17,7 @@ class CRMTelephonyAgent(Document):
 
 		from crm.fcrm.doctype.crm_telephony_phone.crm_telephony_phone import CRMTelephonyPhone
 
+		asterisk_available: DF.Check
 		asterisk_extension: DF.Data | None
 		call_receiving_device: DF.Literal["Computer", "Phone"]
 		default_medium: DF.Literal["", "Twilio", "Exotel", "Asterisk"]

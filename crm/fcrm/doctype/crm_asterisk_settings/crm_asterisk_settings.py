@@ -15,9 +15,18 @@ class CRMAsteriskSettings(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
+		from crm.fcrm.doctype.crm_asterisk_inbound_number.crm_asterisk_inbound_number import (
+			CRMAsteriskInboundNumber,
+		)
+
+		agent_ring_seconds: DF.Int
 		bridge_api_key: DF.Password | None
 		bridge_url: DF.Data | None
 		enabled: DF.Check
+		escalation_endpoint: DF.Data | None
+		escalation_ring_seconds: DF.Int
+		inbound_numbers: DF.Table[CRMAsteriskInboundNumber]
+		max_agent_attempts: DF.Int
 		record_call: DF.Check
 		webhook_verify_token: DF.Data | None
 	# end: auto-generated types
