@@ -144,6 +144,7 @@ permission_query_conditions = {
 	"CRM Deal": "crm.permissions.org_hierarchy.get_deal_permission_query_conditions",
 	"CRM Notification": "crm.fcrm.doctype.crm_notification.crm_notification.get_permission_query_conditions",
 	"CRM Enrichment Run": "crm.domain_enrichment.doctype.crm_enrichment_run.crm_enrichment_run.get_permission_query_conditions",
+	"Data Import": "crm.permissions.data_import.get_permission_query_conditions",
 }
 
 has_permission = {
@@ -151,6 +152,7 @@ has_permission = {
 	"CRM Deal": "crm.permissions.org_hierarchy.has_deal_permission",
 	"CRM Notification": "crm.fcrm.doctype.crm_notification.crm_notification.has_permission",
 	"CRM Enrichment Run": "crm.domain_enrichment.doctype.crm_enrichment_run.crm_enrichment_run.has_permission",
+	"Data Import": "crm.permissions.data_import.has_permission",
 }
 
 # Automation Engine
@@ -271,6 +273,7 @@ doc_events = {
 			"crm.automation.events.on_communication",
 		],
 		"on_update": ["crm.utils.on_communication_update"],
+		"on_change": ["crm.api.email.stamp_send_time"],
 	},
 	"Comment": {
 		"after_insert": ["crm.utils.on_comment_insert"],
@@ -351,6 +354,7 @@ scheduler_events = {
 	],
 	"daily": [
 		"crm.api.event.trigger_daily_event_notifications",
+		"crm.api.event.purge_event_reminder_logs",
 		"crm.fcrm.doctype.crm_invitation.crm_invitation.expire_invitations",
 		"crm.fcrm.doctype.crm_view_settings.crm_view_settings.clear_old_versions",
 		"crm.telemetry.capture_feature_state",

@@ -121,10 +121,11 @@
               :afterSignup="() => capture('signup_from_demo_site')"
             />
             <TrialBanner
-              v-if="isFCSite"
+              v-if="isFCSite && !isCloudSettingsAvailable()"
               :isSidebarCollapsed="isCollapsed"
               :afterUpgrade="() => capture('upgrade_plan_from_trial_banner')"
             />
+            <TrialCard v-if="!isCollapsed" />
             <GettingStartedBanner
               v-if="!isOnboardingStepsCompleted"
               :isSidebarCollapsed="isCollapsed"
@@ -229,6 +230,8 @@ import { useBroadcast } from '@/composables/useBroadcast.js'
 import { call, Sidebar, SidebarItem, SidebarLabel, Tooltip } from 'frappe-ui'
 import { SignupBanner } from '@framework/ui/components/SignupBanner'
 import { TrialBanner } from '@framework/ui/components/TrialBanner'
+import TrialCard from '@/components/Layouts/TrialCard.vue'
+import { isCloudSettingsAvailable } from '@/composables/cloudSettings'
 import {
   HelpModal,
   GettingStartedBanner,
@@ -614,10 +617,10 @@ const articles = ref([
     title: __('Settings'),
     opened: false,
     subArticles: [
-      { name: 'profile', title: __('Profile') },
+      { name: 'profile-and-preferences', title: __('Profile') },
       { name: 'custom-branding', title: __('Custom Branding') },
       { name: 'home-actions', title: __('Home Actions') },
-      { name: 'invite-users', title: __('Invite Users') },
+      { name: 'inviting-your-team', title: __('Invite Users') },
     ],
   },
   {
@@ -637,7 +640,7 @@ const articles = ref([
   {
     title: __('Capturing Leads'),
     opened: false,
-    subArticles: [{ name: 'web-form', title: __('Web Form') }],
+    subArticles: [{ name: 'capturing-leads/web-form', title: __('Web Form') }],
   },
   {
     title: __('Views'),
