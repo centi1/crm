@@ -523,8 +523,9 @@ function getDefaultValue(field, operator) {
 }
 
 function getDefaultOperator(fieldtype) {
-  if (typeSelect.includes(fieldtype)) {
-    return 'equals'
+  if (typeSelect.includes(fieldtype) || typeLink.includes(fieldtype)) {
+    // Athen: pick several values at once by default (Lead Status, RM, Outlet ...)
+    return 'in'
   }
   if (typeCheck.includes(fieldtype) || typeNumber.includes(fieldtype)) {
     return 'equals'
