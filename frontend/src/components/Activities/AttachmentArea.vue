@@ -26,8 +26,26 @@
             <div class="text-base text-ink-gray-8 truncate">
               {{ attachment.file_name }}
             </div>
-            <div class="mb-1 text-sm text-ink-gray-5">
-              {{ convertSize(attachment.file_size) }}
+            <div class="mb-1 text-sm text-ink-gray-5 flex gap-2 items-center">
+              <span>{{ convertSize(attachment.file_size) }}</span>
+              <a
+                v-if="attachment.map_link"
+                :href="attachment.map_link"
+                target="_blank"
+                rel="noopener"
+                class="inline-flex items-center gap-0.5 text-ink-blue-3 hover:underline"
+                :title="
+                  (attachment.location_source || '') +
+                  ' ' +
+                  attachment.latitude +
+                  ', ' +
+                  attachment.longitude
+                "
+                @click.stop
+              >
+                <span class="lucide-map-pin size-3" aria-hidden="true" />
+                {{ __('Map') }}
+              </a>
             </div>
           </div>
         </div>

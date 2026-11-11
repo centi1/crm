@@ -161,6 +161,26 @@ function uploadViaWebLink() {
   })
 }
 
+// Athen: where was the photo taken? The server reads the photo's EXIF GPS; when the camera wrote
+// none (WhatsApp forwards, screenshots) the browser position at upload time is stored instead.
+function tagPhotoLocation(response) {
+  if (!response?.name || !['CRM Lead', 'CRM Deal'].includes(props.doctype)) return
+  const type = (response.file_type || '').toUpperCase()
+  if (!['JPG', 'JPEG', 'PNG', 'WEBP', 'HEIC', 'HEIF', 'TIFF', 'TIF'].includes(type)) return
+  if (!navigator.geolocation) return
+  navigator.geolocation.getCurrentPosition(
+    (pos) =>
+      call('crm.athen.geo.set_file_location', {
+        file: response.name,
+        latitude: pos.coords.latitude,
+        longitude: pos.coords.longitude,
+        accuracy: pos.coords.accuracy,
+      }).catch(() => {}),
+    () => {},
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
+  )
+}
+
 const uploader = ref(null)
 const fileUploadStarted = ref(false)
 const uploadedFiles = ref([])
@@ -199,6 +219,7 @@ function attachFile(file, i) {
     .upload(file, args || {})
     .then((response) => {
       uploadedFiles.value.push(response)
+      tagPhotoLocation(response)
       // web link uploads have no index & no entry in files, so they are always the last upload
       const isLastUpload = file.fileUrl || i === files.value.length - 1
       if (isLastUpload) {

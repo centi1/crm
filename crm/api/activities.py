@@ -355,21 +355,14 @@ def get_readable_fields(doctype: str):
 
 
 def get_attachments(doctype: str, name: str):
+	fields = ["name", "file_name", "file_type", "file_url", "file_size", "is_private", "modified", "creation", "owner"]
+	if frappe.get_meta("File").has_field("map_link"):  # Athen: photo coordinates (crm.athen.geo)
+		fields += ["latitude", "longitude", "map_link", "location_source", "photo_taken_on"]
 	return (
 		frappe.db.get_all(
 			"File",
 			filters={"attached_to_doctype": doctype, "attached_to_name": name},
-			fields=[
-				"name",
-				"file_name",
-				"file_type",
-				"file_url",
-				"file_size",
-				"is_private",
-				"modified",
-				"creation",
-				"owner",
-			],
+			fields=fields,
 		)
 		or []
 	)

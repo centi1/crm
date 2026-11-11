@@ -256,6 +256,9 @@ if int(frappe.__version__.split(".")[0]) < 16:
 # Hook on document methods and events
 
 doc_events = {
+	"File": {
+		"after_insert": ["crm.athen.geo.capture_location"],  # Athen: photo coordinates on lead / deal attachments
+	},
 	"Contact": {
 		"validate": ["crm.api.contact.validate"],
 	},
@@ -288,12 +291,14 @@ doc_events = {
 		],
 	},
 	"CRM Deal": {
+		"validate": ["crm.athen.geo.update_map_link"],  # Athen: map link follows edited coordinates
 		"on_update": [
 			"crm.fcrm.doctype.erpnext_crm_settings.erpnext_crm_settings.create_customer_in_erpnext",
 			"crm.automation.events.on_deal_update",
 		],
 	},
 	"CRM Lead": {
+		"validate": ["crm.athen.geo.update_map_link"],
 		"on_update": ["crm.automation.events.on_lead_update"],
 	},
 	"Sales Order": {
@@ -443,6 +448,7 @@ on_session_creation = ["crm.api.onboarding.complete_setup_for_fc_site"]
 
 after_migrate = [
 	"crm.fcrm.doctype.fcrm_settings.fcrm_settings.after_migrate",
+	"crm.athen.geo.after_migrate",  # Athen: photo location custom fields on every site
 	"crm.api.whatsapp.add_roles",
 	"crm.domain_enrichment.install.seed_default_rules_and_mappings",
 	"crm.install.add_default_scripts",
