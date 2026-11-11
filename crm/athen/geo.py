@@ -1,8 +1,9 @@
 """Where was this photo taken? (Athen, user 2026-11-11, first for AGEPL's solar site visits.)
 
 Every image attached to a CRM Lead / Deal gets coordinates on its File record:
-1. from the photo's EXIF GPS tags when the camera wrote them (WhatsApp-forwarded images have
-   none: WhatsApp strips EXIF), else
+1. from the photo's EXIF GPS tags when the camera wrote them, read from the upload bytes before
+   Frappe strips the metadata from the stored copy (privacy setting kept on); WhatsApp-forwarded
+   images have none (WhatsApp strips EXIF), else
 2. from the browser's position at upload time, which the CRM uploader sends right after the
    upload (`set_file_location`), labelled "Upload location".
 The lead / deal keeps the latest photo's position in `photo_latitude` / `photo_longitude` (editable:
@@ -61,12 +62,14 @@ def _dms_to_degrees(value, ref):
 	return -degrees if ref in ("S", "W") else degrees
 
 
-def read_exif_location(path):
-	"""(lat, lng, taken_on) from the image's EXIF, or None."""
+def read_exif_location(source):
+	"""(lat, lng, taken_on) from the image's EXIF, or None. `source` is a path or the image bytes."""
 	try:
+		import io
+
 		from PIL import Image
 
-		with Image.open(path) as im:
+		with Image.open(io.BytesIO(source) if isinstance(source, bytes) else source) as im:
 			exif = im.getexif()
 			if not exif:
 				return None
@@ -130,11 +133,21 @@ def capture_location(doc, method=None):
 	"""File after_insert: EXIF GPS of a photo attached to a lead / deal."""
 	if not is_photo(doc) or not frappe.get_meta("File").has_field("latitude"):
 		return
-	try:
-		path = doc.get_full_path()
-	except Exception:
-		return
-	found = read_exif_location(path)
+	# Frappe strips EXIF from the STORED jpeg (System Settings "strip EXIF metadata from uploaded images",
+	# on by default and left on for privacy), so read the tags from the original upload bytes:
+	# doc.content (programmatic insert / upload_file) or frappe.local.uploaded_file (web upload),
+	# and only then from the stored file (older uploads, other storage backends).
+	found = None
+	for source in (doc.get("content"), getattr(frappe.local, "uploaded_file", None)):
+		if isinstance(source, bytes) and source[:3] == b"\xff\xd8\xff":
+			found = read_exif_location(source)
+			if found:
+				break
+	if not found:
+		try:
+			found = read_exif_location(doc.get_full_path())
+		except Exception:
+			found = None
 	if found:
 		_store(doc, found[0], found[1], "Photo EXIF", found[2])
 
