@@ -23,17 +23,13 @@
     :placeholder="filter.label"
     @change="(data) => updateFilter(filter, data)"
   />
-  <component
-    :is="filter.fieldtype === 'Date' ? DatePicker : DateTimePicker"
+  <!-- athen: a date quick filter takes a from-to range (one day = the same date twice) -->
+  <DateRangePicker
     v-else-if="['Date', 'Datetime'].includes(filter.fieldtype)"
-    class="border-none"
-    :model-value="filter.value"
+    class="min-w-52 border-none"
+    :model-value="Array.isArray(filter.value) ? filter.value : []"
     :placeholder="filter.label"
-    :format="
-      filter.fieldtype === 'Date'
-        ? getFormat('', '', true, false, false)
-        : getFormat('', '', true, true, false)
-    "
+    :format="getFormat('', '', true, false, false)"
     @change="(v) => updateFilter(filter, v)"
   />
   <FormControl
@@ -46,7 +42,7 @@
 </template>
 <script setup>
 import Link from '@/components/Controls/Link.vue'
-import { FormControl, DatePicker, DateTimePicker } from 'frappe-ui'
+import { FormControl, DateRangePicker } from 'frappe-ui'
 import { getFormat } from '@/utils'
 import { useDebounceFn } from '@vueuse/core'
 import { reactive, watch } from 'vue'

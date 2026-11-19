@@ -1034,6 +1034,22 @@ const quickFilterList = computed(() => {
 
   filters.forEach((filter) => {
     filter['value'] = filter.fieldtype == 'Check' ? false : ''
+    if (['Date', 'Datetime'].includes(filter.fieldtype)) {
+      // athen: shown as a range; a single saved date is that day to that day
+      let value = params?.filters?.[filter.fieldname]
+      filter['value'] = []
+      if (
+        Array.isArray(value) &&
+        String(value[0]).toLowerCase() == 'between' &&
+        Array.isArray(value[1]) &&
+        value[1].length == 2
+      ) {
+        filter['value'] = value[1]
+      } else if (typeof value == 'string' && value) {
+        filter['value'] = [value.slice(0, 10), value.slice(0, 10)]
+      }
+      return
+    }
     if (params?.filters?.[filter.fieldname]) {
       let value = params.filters[filter.fieldname]
       if (Array.isArray(value)) {
@@ -1233,7 +1249,17 @@ function setupNewQuickFilters(filters) {
 function applyQuickFilter(filter, value) {
   let filters = { ...getListParams().filters }
   let field = filter.fieldname
-  if (value) {
+  const isDate = ['Date', 'Datetime'].includes(filter.fieldtype)
+  if (isDate && Array.isArray(value)) {
+    // athen: date quick filters are a from-to range
+    if (value.length == 2 && value[0] && value[1]) {
+      filters[field] = ['between', value]
+      filter['value'] = value
+    } else {
+      delete filters[field]
+      filter['value'] = []
+    }
+  } else if (value) {
     if (
       ['Check', 'Select', 'Link', 'Date', 'Datetime'].includes(filter.fieldtype)
     ) {
