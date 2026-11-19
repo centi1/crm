@@ -6,22 +6,20 @@
     type="checkbox"
     @change.stop="updateFilter(filter, $event.target.checked)"
   />
-  <FormControl
+  <!-- athen: drop-down quick filters take several values -->
+  <MultiSelect
     v-else-if="filter.fieldtype === 'Select'"
-    v-model="filter.value"
-    class="form-control cursor-pointer [&_select]:cursor-pointer"
-    type="select"
-    :options="filter.options"
+    :model-value="Array.isArray(filter.value) ? filter.value : []"
+    :options="(filter.options || []).filter((o) => o.value)"
     :placeholder="filter.label"
-    side="bottom"
-    @update:modelValue="updateFilter(filter, $event)"
+    @update:modelValue="(v) => updateFilter(filter, v)"
   />
-  <Link
+  <LinkMultiSelect
     v-else-if="filter.fieldtype === 'Link'"
-    :value="filter.value"
+    :model-value="Array.isArray(filter.value) ? filter.value : []"
     :doctype="filter.options"
     :placeholder="filter.label"
-    @change="(data) => updateFilter(filter, data)"
+    @update:modelValue="(v) => updateFilter(filter, v)"
   />
   <!-- athen: a date quick filter takes a from-to range (one day = the same date twice) -->
   <DateRangePicker
@@ -41,8 +39,8 @@
   />
 </template>
 <script setup>
-import Link from '@/components/Controls/Link.vue'
-import { FormControl, DateRangePicker } from 'frappe-ui'
+import LinkMultiSelect from '@/components/Controls/LinkMultiSelect.vue'
+import { FormControl, DateRangePicker, MultiSelect } from 'frappe-ui'
 import { getFormat } from '@/utils'
 import { useDebounceFn } from '@vueuse/core'
 import { reactive, watch } from 'vue'

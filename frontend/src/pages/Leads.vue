@@ -427,10 +427,16 @@ function parseRows(rows, columns = []) {
   let key = view_type === 'kanban' ? 'fieldname' : 'key'
   let type = view_type === 'kanban' ? 'fieldtype' : 'type'
 
-  return rows.map((lead) => {
+  return rows.map((lead, index) => {
     let _rows = {}
     leads.value?.data.rows.forEach((row) => {
       _rows[row] = lead[row]
+
+      // athen: a column on "idx" is the running serial number of the list as shown
+      if (row === 'idx' && view_type !== 'kanban') {
+        _rows[row] = String(index + 1)
+        return
+      }
 
       let fieldType = columns?.find((col) => (col[key] || col.value) == row)?.[
         type
