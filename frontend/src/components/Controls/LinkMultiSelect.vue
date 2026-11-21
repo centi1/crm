@@ -28,10 +28,14 @@ const query = ref('')
 // once the search results move on to a different query
 const labels = ref({})
 
+// the endpoint returns 10 rows unless told otherwise; a quick filter should show
+// the whole list for small masters (territories, outlets) without typing
+const PAGE_LENGTH = 200
+
 const search = createResource({
   url: 'frappe.desk.search.search_link',
   method: 'POST',
-  params: { txt: '', doctype: props.doctype },
+  params: { txt: '', doctype: props.doctype, page_length: PAGE_LENGTH },
   transform: (data) =>
     data.map((o) => ({ label: o.label || o.value, value: o.value })),
 })
@@ -44,7 +48,13 @@ watch(
 watchDebounced(
   [query, () => props.doctype],
   () => {
-    search.update({ params: { txt: query.value, doctype: props.doctype } })
+    search.update({
+      params: {
+        txt: query.value,
+        doctype: props.doctype,
+        page_length: PAGE_LENGTH,
+      },
+    })
     search.reload()
   },
   { debounce: 300, immediate: true },
