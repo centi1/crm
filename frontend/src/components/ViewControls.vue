@@ -29,6 +29,15 @@
             :tooltip="__('Show all records')"
             @click="filterChip.clear"
           />
+          <ListPager
+            v-if="showPager"
+            :start="pageStart"
+            :rowCount="list.data.row_count"
+            :totalCount="list.data.total_count"
+            :loading="isLoading"
+            @previous="goPage(-1)"
+            @next="goPage(1)"
+          />
           <Button
             :tooltip="__('Refresh')"
             icon="lucide-refresh-ccw"
@@ -189,6 +198,15 @@
           iconRight="lucide-x"
           :tooltip="__('Show all records')"
           @click="filterChip.clear"
+        />
+        <ListPager
+          v-if="showPager"
+          :start="pageStart"
+          :rowCount="list.data.row_count"
+          :totalCount="list.data.total_count"
+          :loading="isLoading"
+          @previous="goPage(-1)"
+          @next="goPage(1)"
         />
         <Button
           :tooltip="__('Refresh')"
@@ -356,6 +374,7 @@ import ListIcon from '@/components/Icons/ListIcon.vue'
 import KanbanIcon from '@/components/Icons/KanbanIcon.vue'
 import GroupByIcon from '@/components/Icons/GroupByIcon.vue'
 import QuickFilterField from '@/components/QuickFilterField.vue'
+import ListPager from '@/components/ListPager.vue'
 import {
   GroupBy as GroupSummaryButton,
   parseGroupBy,
@@ -557,6 +576,38 @@ const view = ref({
 // mirrors the get_data default; undefined would make "Load More" send null
 const DEFAULT_PAGE_LENGTH = 20
 
+// athen: Previous / Next paging. pageStart = rows skipped before the first one shown
+const pageStart = ref(0)
+const showPager = computed(() => {
+  const data = list.value?.data
+  if (!data || ['kanban', 'group_by'].includes(route.params.viewType)) {
+    return false
+  }
+  return pageStart.value > 0 || data.total_count > data.row_count
+})
+watch(
+  () => [route.query.view, route.params.viewType, props.doctype],
+  () => (pageStart.value = 0),
+  { flush: 'sync' },
+)
+
+function goPage(direction) {
+  if (list.value.loading) return
+  if (!defaultParams.value) {
+    defaultParams.value = getParams()
+  }
+  const size = list.value.params?.page_length_count || pageLengthCount.value
+  const shown = list.value.data?.row_count || size
+  // Next continues after everything on screen, also after "Load More"
+  const next =
+    direction > 0 ? pageStart.value + shown : pageStart.value - size
+  pageStart.value = Math.max(0, next)
+  list.value.params = defaultParams.value
+  list.value.params.start = pageStart.value
+  list.value.params.page_length = size
+  list.value.reload()
+}
+
 const pageLength = computed(
   () => list.value?.data?.page_length ?? DEFAULT_PAGE_LENGTH,
 )
@@ -632,6 +683,7 @@ function getParams() {
     rows: rows,
     page_length: pageLength.value,
     page_length_count: pageLengthCount.value,
+    start: pageStart.value,
   }
 }
 
@@ -674,7 +726,10 @@ listResource = createResource({
       rows: data.rows,
       page_length: params.page_length,
       page_length_count: params.page_length_count,
+      start: data.start || 0,
     }
+    // the server falls back to the first page when the asked page is empty
+    pageStart.value = data.start || 0
   },
 })
 
@@ -1312,6 +1367,8 @@ function updateFilter(filters) {
   }
   listResource.params = defaultParams.value
   listResource.params.filters = filters
+  pageStart.value = 0
+  listResource.params.start = 0
   view.value.filters = filters
   listResource.reload()
 
@@ -1327,6 +1384,8 @@ function updateSort(order_by) {
   }
   list.value.params = defaultParams.value
   list.value.params.order_by = order_by
+  pageStart.value = 0
+  list.value.params.start = 0
   view.value.order_by = order_by
   list.value.reload()
 
@@ -1613,6 +1672,8 @@ function updatePageLength(value, loadMore = false) {
       return
     list.value.params.page_length = value
     list.value.params.page_length_count = value
+    pageStart.value = 0
+    list.value.params.start = 0
   }
   list.value.reload()
 }

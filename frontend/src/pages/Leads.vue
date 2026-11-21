@@ -434,7 +434,7 @@ function parseRows(rows, columns = []) {
 
       // athen: a column on "idx" is the running serial number of the list as shown
       if (row === 'idx' && view_type !== 'kanban') {
-        _rows[row] = String(index + 1)
+        _rows[row] = String((leads.value.data.start || 0) + index + 1)
         return
       }
 

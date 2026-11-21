@@ -300,6 +300,7 @@ def get_data(
 	order_by: str,
 	page_length: int = 20,
 	page_length_count: int = 20,
+	start: int = 0,
 	column_field: str | None = None,
 	title_field: str | None = None,
 	columns: str | list | None = None,
@@ -407,16 +408,25 @@ def get_data(
 		if meta.track_seen and "_seen" not in rows:
 			rows.append("_seen")
 
-		data = (
-			frappe.get_list(
-				doctype,
-				fields=rows,
-				filters=filters,
-				order_by=order_by,
-				page_length=page_length,
+		# athen: Previous / Next paging of the list; a page past the end (filters
+		# changed meanwhile) falls back to the first page instead of showing nothing
+		start = max(frappe.utils.cint(start), 0)
+		data = []
+		while True:
+			data = (
+				frappe.get_list(
+					doctype,
+					fields=rows,
+					filters=filters,
+					order_by=order_by,
+					page_length=page_length,
+					start=start,
+				)
+				or []
 			)
-			or []
-		)
+			if data or not start:
+				break
+			start = 0
 		data = parse_list_data(data, doctype)
 
 	if view_type == "kanban":
@@ -587,6 +597,7 @@ def get_data(
 		"group_by_field": group_by_field,
 		"page_length": page_length,
 		"page_length_count": page_length_count,
+		"start": start if view_type not in ("kanban", "group_by") else 0,
 		"is_default": is_default,
 		"views": get_views(doctype),
 		"total_count": frappe.get_list(doctype, filters=filters, fields=[COUNT_NAME])[0].total_count,

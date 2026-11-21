@@ -402,10 +402,16 @@ function parseRows(rows, columns = []) {
   let key = view_type === 'kanban' ? 'fieldname' : 'key'
   let type = view_type === 'kanban' ? 'fieldtype' : 'type'
 
-  return rows.map((deal) => {
+  return rows.map((deal, index) => {
     let _rows = {}
     deals.value.data.rows.forEach((row) => {
       _rows[row] = deal[row]
+
+      // athen: a column on "idx" is the running serial number of the list as shown
+      if (row === 'idx' && view_type !== 'kanban') {
+        _rows[row] = String((deals.value.data.start || 0) + index + 1)
+        return
+      }
 
       let fieldType = columns?.find((col) => (col[key] || col.value) == row)?.[
         type
